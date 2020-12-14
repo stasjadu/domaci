@@ -26,8 +26,11 @@ int fifo[16];
 int pos=0;
 int endRead = 0;
 
-DECLARE_WAIT_QUEUE_HEAD(readQ);
-DECLARE_WAIT_QUEUE_HEAD(writeQ)
+wait_queue_head_t readQ;
+init_waitqueue_head(&readQ);
+wait_queue_head_t writeQ;
+init_waitqueue_head(&writeQ);
+
 struct semaphore sem;
 
 
