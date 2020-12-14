@@ -41,10 +41,10 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 struct file_operations my_fops =
 {
 	.owner = THIS_MODULE,
-	.open = hello_open,
-	.read = hello_read,
-	.write = hello_write,
-	.release = hello_close,
+	.open = fifo_open,
+	.read = fifo_read,
+	.write = fifo_write,
+	.release = fifo_close,
 };
 
 
