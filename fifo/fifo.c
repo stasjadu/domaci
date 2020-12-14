@@ -12,6 +12,8 @@
 #include <linux/wait.h>
 #include <linux/semaphore.h>
 
+#define FIFO_MAJOR 255
+#define BUFF_SIZE 16
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -19,9 +21,6 @@ dev_t my_dev_id;
 static struct class *my_class;
 static struct device *my_device;
 static struct cdev *my_cdev;
-
-#define FIFO_MAJOR 255
-#define BUFF_SIZE 16
 
 int fifo[16];
 int pos=0;
@@ -129,19 +128,20 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 				ret = sscanf(buff,"%d;",&value);
 				if(ret==1)//one parameter parsed in sscanf
 				{
-					fifo[pos]=value;
 					printk(KERN_INFO "Succesfully wrote value %d", value);
-					pos++;
+					fifo[pos]=value;
+					pos++;					
 				}
-			else
-			{
+				else
+				{
 				printk(KERN_WARNING "Wrong command format\n");
+				}
 			}
 			else
 			{
 				printk(KERN_WARNING "Fifo is full\n");	
 			}
-
+			
 			up(&sem);
 			wake_up_interruptible(&readQ);
 			return length;
