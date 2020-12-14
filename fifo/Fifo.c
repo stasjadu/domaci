@@ -70,8 +70,9 @@ ssize_t fifo_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 			return 0;
 		}
 		 
-		if(down_interruptible(&sem))
+		if(down_interruptible(&sem)){
 			return -ERESTARTSYS;
+		}	
 		while(pos == 0)
 		{
 			up(&sem);
