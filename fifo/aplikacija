@@ -32,7 +32,7 @@ int main()
 				{
 					printf("Unesite hexadecimalan broj: ");
 					scanf("%s",value);
-					if(uslov)
+					if(conditon)
 					{
 						fprintf(my_stream,"%s",value);
 						condition = 0;
