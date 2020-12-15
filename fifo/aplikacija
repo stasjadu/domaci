@@ -6,7 +6,7 @@
 int main()
 {
 	FILE *my_stream;
-	int choice =;
+	int choice =0;
 	char value[3];
 	
 	while (3)
