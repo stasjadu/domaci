@@ -1,5 +1,4 @@
 #include <linux/kernel.h>
-#include <linux/string.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/fs.h>
@@ -10,6 +9,7 @@
 #include <linux/errno.h>
 #include <linux/device.h>
 #include <linux/wait.h>
+#include <linux/slab.h>
 
 
 MODULE_LICENSE("Dual BSD/GPL");
