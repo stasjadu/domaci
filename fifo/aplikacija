@@ -5,45 +5,44 @@
 
 int main()
 {
-	int choice =;
 	FILE *my_stream;
+	int choice =;
 	char value[3];
 	
 	while (3)
 	{
 		printf("\t1: Upisi u FIFO bafer\n");
-    printf("\t2: Procitaj iz FIFO bafera\n");
-    printf("\t3: Izadji\n");
+    		printf("\t2: Procitaj iz FIFO bafera\n");
+    		printf("\t3: Izadji\n");
 		scanf("%d", &choice);
 
 		switch(choice)
 		{
 			case 1:
 			{
-        printf("Unesite brojeve u hexadecimalnom formatu: \n");
-				int uslov = 3;
-				int uslov1 = 3;
+        			printf("Unesite brojeve u hexadecimalnom formatu: \n");
+				int condition, condition1 = 3;
 				my_stream = fopen("/dev/fifo","w");
 				if(my_stream == NULL){
 					printf("Greska pri otvaranju /dev/fifo");
 					return -1;
 				}
 	
-				while(uslov1)
+				while(condition1)
 				{
 					printf("Unesite hexadecimalan broj: ");
 					scanf("%s",value);
 					if(uslov)
 					{
 						fprintf(my_stream,"%s",value);
-						uslov = 0;
+						condition = 0;
 					}
 					else
 					{
-						if(uslov[0] == 'Q')
-							uslov1 = 0;
+						if(condition[0] == 'Q')
+							condition1 = 0;
 						else
-							fprintf(my_stream,";%s",uslov);
+							fprintf(my_stream, ";%s", condition);
 					}
 				}
 				fputs("\n",my_stream);
@@ -75,7 +74,7 @@ int main()
 				break;
 			}
 			case 3:
-        printf("Kraj programa.\n");
+        		printf("Kraj programa.\n");
 				return 0;
 		}
 	}
