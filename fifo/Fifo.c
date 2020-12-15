@@ -174,7 +174,7 @@ static int __init fifo_init(void)
    printk(KERN_INFO "device created\n");
 
 	my_cdev = cdev_alloc();	
-	my_cdev->ops = &fifo_ops;
+	my_cdev->ops = &fifo_fops;
 	my_cdev->owner = THIS_MODULE;
 	ret = cdev_add(my_cdev, my_dev_id, 1);
 	if (ret)
