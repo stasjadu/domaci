@@ -1,4 +1,5 @@
 #include <linux/kernel.h>
+#include <linux/string.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/fs.h>
@@ -10,7 +11,6 @@
 #include <linux/device.h>
 #include <linux/wait.h>
 
-
 MODULE_LICENSE("Dual BSD/GPL");
 
 dev_t my_dev_id;
@@ -18,8 +18,8 @@ static struct class *my_class;
 static struct device *my_device;
 static struct cdev *my_cdev;
 
-DECLARE_WAIT_QUEUE_HEAD(readQueue);
-DECLARE_WAIT_QUEUE_HEAD(writeQueue);
+DECLARE_WAIT_QUEUE_HEAD(readQ);
+DECLARE_WAIT_QUEUE_HEAD(writeQ);
 
 #define FIFO_MAJOR 255
 #define BUFF_SIZE 90
@@ -147,8 +147,6 @@ static int __init fifo_init(void)
 {
    int ret = 0;
    int i=0;
-
-	sema_init(&sem,1);
 
 	//Initialize array
 	for (i=0; i<10; i++)
