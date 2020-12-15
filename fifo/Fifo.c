@@ -98,7 +98,7 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 		char buff[BUFF_SIZE];
 		char *position;
 		char *n;
-		int value, ret,;
+		int value, ret;
 		int state=3;
 	
 		ret = copy_from_user(buff, buffer, length);
@@ -149,7 +149,7 @@ static int __init fifo_init(void)
    int i=0;
 
 	//Initialize array
-	for (i=0; i<10; i++)
+	for (i=0; i<16; i++)
 		fifo[i] = 0;
 
    ret = alloc_chrdev_region(&my_dev_id, 0, 1, "fifo");
@@ -174,7 +174,7 @@ static int __init fifo_init(void)
    printk(KERN_INFO "device created\n");
 
 	my_cdev = cdev_alloc();	
-	my_cdev->ops = &my_fops;
+	my_cdev->ops = &fifo_ops;
 	my_cdev->owner = THIS_MODULE;
 	ret = cdev_add(my_cdev, my_dev_id, 1);
 	if (ret)
