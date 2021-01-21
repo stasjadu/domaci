@@ -21,11 +21,12 @@ static struct cdev *my_cdev;
 DECLARE_WAIT_QUEUE_HEAD(readQ);
 DECLARE_WAIT_QUEUE_HEAD(writeQ);
 
-#define FIFO_MAJOR 255
-#define BUFF_SIZE 90
+#define BUFF_SIZE 40
 
 int fifo[16];
-int pos=0;
+int pFirst, pLast=0;
+int num=0;
+int temp=0;
 int endRead = 0;
 
 
@@ -63,34 +64,39 @@ ssize_t fifo_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 		int ret;
 		char buff[BUFF_SIZE];
 		long int len = 0;
+		buff[0] = '\0';
+	
 		if (endRead){
 			endRead = 0;
 			return 0;
 		}
 		 		
-		if(wait_event_interruptible(readQ,(pos>0)))
+		if(wait_event_interruptible(readQ,(temp>0)))
 			return -ERESTARTSYS;
 
-		if(pos > 0)
+		if(temp > (num -1))
 		{
-			pos --;
-			len = scnprintf(buff, BUFF_SIZE, "%x ", fifo[pos]);
-			pos+=pos;
-			if(pos==16)
-				pos=0;
-				ret=copy_to_user(buffer, buff, len);
-				if(ret)
-					return -EFAULT;
-					printk(KERN_INFO "Succesfully read\n");
-		}
-		else
-		{
-			printk(KERN_WARNING "Fifo is empty\n");
-		}
+			temp= temp-num;
+			for(int j=0; j<num; j++){
+				len = scnprintf(buff+strlen(buff), BUFF_SIZE, "%x ", fifo[0]);
+				for(int i=0;i<15;i++){ 
+					fifo[i]=fifo[i+1];
+				}
+				fifo[15]= -1;
+			}
+			ret=copy_to_user(buffer, buff, len*num);
+			if(ret)
+				return -EFAULT;
+				printk(KERN_INFO "Succesfully read\n");
+				wake_up_interruptible(&writeQ);
+			}
+			else
+		        {
+				printk(KERN_WARNING "Fifo is empty\n");
+			}
 		
-		wake_up_interruptible(&writeQ);
-		endRead=1;
-		return len;
+			endRead=1;
+			return len*num;
 }
 		
 ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length, loff_t *offset) 
@@ -99,34 +105,37 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 		char *position;
 		char *n;
 		int value, ret;
-		int state=3;
 	
 		ret = copy_from_user(buff, buffer, length);
 		if(ret)
 			return -EFAULT;
 			buff[length-1] = '\0';
 			
-			if(wait_event_interruptible(writeQ, (pos < 16)))
+			if(wait_event_interruptible(writeQ, (temp < 16)))
 				return -ERESTARTSYS;
 			n=buff;
-				
-			while(state){
+				while(1){
     				position=strchr(n, ';');
 				if(position==NULL)
-					state=0;
-				else
-					*position='\0';
-				if(pos < 16)
 				{
-					ret = sscanf(n,"%x",&value);
-					if(ret==1)
+					ret=kstrtouint(buff,0, &fifo[temp]); 
+				}
+				else
+				{
+					*position='\0';
+					}
+					if(temp < 16)
 					{
-						n=position+1;
-						printk(KERN_INFO "Succesfully wrote value %x", value);
-						fifo[pos]=value;
-						pos++;
-						if(pos==16)
-							pos=0;
+						ret = sscanf(n,"%x",&value);
+						if(ret==1)
+						{
+							n=position+1;
+							printk(KERN_INFO "Succesfully wrote value %x", value);
+							fifo[pLast]=value;
+							pLast=pLast+1;
+							temp=temp+1;
+							if(pLast==16){
+								pLast=0;
 					}
 					else
 					{
