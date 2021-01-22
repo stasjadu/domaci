@@ -62,6 +62,7 @@ int fifo_close(struct inode *pinode, struct file *pfile)
 ssize_t fifo_read(struct file *pfile, char __user *buffer, size_t length, loff_t *offset) 
 {
 		int ret;
+		int i,j;
 		char buff[BUFF_SIZE];
 		long int len = 0;
 		buff[0] = '\0';
@@ -77,9 +78,10 @@ ssize_t fifo_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 		if(temp > (num -1))
 		{
 			temp= temp-num;
-			for(int j=0; j<num; j++){
+			for(j=0; j<num; j++){
 				len = scnprintf(buff+strlen(buff), BUFF_SIZE, "%x ", fifo[0]);
-				for(int i=0;i<15;i++){ 
+				for(i=0;i<15;i++)
+				{
 					fifo[i]=fifo[i+1];
 				}
 				fifo[15]= -1;
