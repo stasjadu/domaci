@@ -22,9 +22,9 @@ DECLARE_WAIT_QUEUE_HEAD(readQ);
 DECLARE_WAIT_QUEUE_HEAD(writeQ);
 
 #define BUFF_SIZE 40
+#define FIFO_MAJOR 255
 
 int fifo[16];
-int pFirst, pLast=0;
 int num=0;
 int temp=0;
 int endRead = 0;
@@ -103,53 +103,51 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 {
 		char buff[BUFF_SIZE];
 		char *position;
-		char *n;
-		int value, ret;
+		char* const separator= ";"
+		char *symbol, *value=buff;
+		int ret;
+		int i,j;
 	
 		ret = copy_from_user(buff, buffer, length);
 		if(ret)
 			return -EFAULT;
 			buff[length-1] = '\0';
-			
-			if(wait_event_interruptible(writeQ, (temp < 16)))
-				return -ERESTARTSYS;
-			n=buff;
-				while(1){
-    				position=strchr(n, ';');
+			if(!strncmp(buff,"num=",4))                                                       //provera da li korisnik unosi nove vrednosti ili potrazuje num=n komandu
+  			{
+    				ret=sscanf(buff, "num=%d", &num);                                               //promenljiva num cuva podatak koliko clanova FIFO korisnik zeli procitati
+    				printk(KERN_INFO "num=%d", num);
+  			}
+			else
+			{
+				position=strchr(buff, ';');
 				if(position==NULL)
 				{
-					ret=kstrtouint(buff,0, &fifo[temp]); 
+					ret=kstrtoint(buff, 0, &fifo[tmp]);
+					if(fifo[i] > FIFO_MAJOR)
+					{
+						printk(KERN_WARNING "Maximum calue of input is 0xff");
+						return length;
+					}
 				}
-				else
+				i=temp;
+				while(symbol=strsep(&value, separator))
 				{
-					*position='\0';
+					for(i=0; i<FIFO_MAJOR; i++){
+					ret=kstrtoint(symbol, 0, &fifo[i]);
+					i=temp;
 					}
-					if(temp < 16)
+					while(i > 15)
 					{
-						ret = sscanf(n,"%x",&value);
-						if(ret==1)
-						{
-							n=position+1;
-							printk(KERN_INFO "Succesfully wrote value %x", value);
-							fifo[pLast]=value;
-							pLast=pLast+1;
-							temp=temp+1;
-							if(pLast==16){
-								pLast=0;
+						temp=i-1;
+						if(wait_event_interruptible(writeQueue,(temp<16)))                          //Fifo je pun
+              						return -ERESTARTSYS;
 					}
-					else
-					{
-						printk(KERN_WARNING "Wrong command format\n");
-					}
-			      }
-			      else
-			      {
-				     printk(KERN_WARNING "Fifo is full\n");  
-			      }
-			}		
-					
-			wake_up_interruptible(&readQ);
-			return length;
+				}
+				for (j=0; j<temp; j++)
+				{
+					printk(KERN_INFO "Value %x written in FIFO", fifo[j]);
+				}
+			}
 }
 
 static int __init fifo_init(void)
