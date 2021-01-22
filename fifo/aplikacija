@@ -7,75 +7,77 @@ int main()
 {
 	FILE *my_stream;
 	int choice =0;
-	char value[3];
+	int number=0;
+	int end=0;
+	char buff[4096];
+	char buff1[4096];
+	char value[30];
+	ssize_t bits;
 	
-	while (3)
+	int main(int argc, char **argv)
 	{
-		printf("\t1: Upisi u FIFO bafer\n");
-    		printf("\t2: Procitaj iz FIFO bafera\n");
-    		printf("\t3: Izadji\n");
-		scanf("%d", &choice);
+    		int count;
+    		struct sigaction action;
+    		int fd=open("/dev/fifo",O_RDWR|O_NONBLOCK);
+    
+		if (!fd)
+    		{
+	   		exit(1);
+	   		printf("Error opening file\n");
+    		}
+		printf("Pid of a current process is: %d\n", getpid());
+		
+		while (1)
+		{
+			printf("\t1: Upisi u FIFO bafer\n");
+    			printf("\t2: Procitaj iz FIFO bafera\n");
+    			printf("\t3: Izadji\n");
+			scanf("%d", &choice);
 
 		switch(choice)
 		{
 			case 1:
 			{
         			printf("Unesite brojeve u hexadecimalnom formatu: \n");
-				int condition, condition1 = 3;
-				my_stream = fopen("/dev/fifo","w");
-				if(my_stream == NULL){
-					printf("Greska pri otvaranju /dev/fifo");
-					return -1;
-				}
-	
-				while(condition1)
-				{
-					printf("Unesite hexadecimalan broj: ");
-					scanf("%s",value);
-					if(conditon)
+					scanf("%s", buff);
+					if((strncmp(buff, "0x", 2) != 0)
 					{
-						fprintf(my_stream,"%s",value);
-						condition = 0;
+						printf("It has to be hexadecimal number\n");
 					}
-					else
-					{
-						if(condition[0] == 'Q')
-							condition1 = 0;
-						else
-							fprintf(my_stream, ";%s", condition);
-					}
-				}
-				fputs("\n",my_stream);
-	
-				if(fclose(my_stream)){
-					printf("Greska pri zatvaranju /dev/fifo");
-					return -1;
-				}
-				break;
+					bits=strlen(buff);
+					write(fd, buff, bytes_number);
+					printf("Written number: %s\n", buff);
 			}
+			break;
+				
 			case 2:
 			{
-				char *number;
-				size_t bits = 3;
-				my_stream = fopen("/dev/fifo","r");
-				if(my_stream == NULL){
-					puts("Problem pri otvaranju /dev/fifo");
-					return -1;
-				}
-	
-				number = (char *) malloc(bits);
-				getline(&number, &bits, my_stream);
-				printf("Broj je: %s\n", number);
-	
-				if(fclose(my_stream)){
-					puts("Problem pri zatvaranju bibilioteke");
-					return -1;
-				}
-				break;
-			}
-			case 3:
-        		printf("Kraj programa.\n");
+				printf("Enter how many numbers you want to read:");
+				scanf("%s", number);
+				int n=atoi(number);
+				count=strlen(number);
+				char str[10]="num=";
+				strcat(str, number);
+				
+				bits=strlen(str);
+				write(fd, str, bits);
+				fflush(stdout);
+				bits=read(fd, buff1, 16);
+				buff1[bits]='\0';
+				printf("%s\n",buff1);
+            			fflush(stdout);
+				
+				close(fd);
 				return 0;
+				}
+			break;
+			
+			case 3:
+			{
+        			printf("End of the program\n");
+				close(fd);
+				return 0;
+			}
 		}
-	}
+		return 0;
 }
