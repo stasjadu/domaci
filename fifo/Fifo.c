@@ -104,7 +104,8 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 		char buff[BUFF_SIZE];
 		char *position;
 		char* const separator= ";"
-		char *symbol, *value=buff;
+		char *symbol;
+		char *value=buff;
 		int ret;
 		int i,j;
 	
@@ -139,7 +140,7 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 					while(i > 15)
 					{
 						temp=i-1;
-						if(wait_event_interruptible(writeQueue,(temp<16)))                          //Fifo je pun
+						if(wait_event_interruptible(writeQ,(temp<16)))                          //Fifo je pun
               						return -ERESTARTSYS;
 					}
 				}
