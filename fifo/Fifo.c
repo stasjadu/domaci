@@ -103,7 +103,7 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 {
 		char buff[BUFF_SIZE];
 		char *position;
-		char* const separator= ";"
+		char* const separator= ";";
 		char *symbol;
 		char *value=buff;
 		int ret;
@@ -123,7 +123,7 @@ ssize_t fifo_write(struct file *pfile, const char __user *buffer, size_t length,
 				position=strchr(buff, ';');
 				if(position==NULL)
 				{
-					ret=kstrtoint(buff, 0, &fifo[tmp]);
+					ret=kstrtoint(buff, 0, &fifo[temp]);
 					if(fifo[i] > FIFO_MAJOR)
 					{
 						printk(KERN_WARNING "Maximum calue of input is 0xff");
