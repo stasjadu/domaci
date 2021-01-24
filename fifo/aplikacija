@@ -52,7 +52,7 @@ int main()
 				
 			case 2:
 			{
-				printf("Enter how many numbers you want to read:");
+				printf("Unesite koliko brojeva zelite da procitate:");
 				scanf("%s", number);
 				int n=atoi(number);
 				count=strlen(number);
